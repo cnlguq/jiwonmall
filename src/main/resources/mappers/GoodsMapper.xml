@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="GoodsMapper">
+	<select id="goodslist" parameterType="Map" resultType="com.jiwonmall.jiwon.product.domain.GoodsDTO">
+		SELECT *
+		FROM goods
+		<if test="q != null">
+		WHERE goods_name LIKE '%'||#{q}||'%'
+		</if>
+	</select>
+	
+	<select id="membergoods" resultType="com.jiwonmall.jiwon.product.domain.GoodsDTO">
+		SELECT *
+		FROM goods
+		WHERE member_id = #{member_id}
+	</select>
+	
+	<select id="goodsone" resultType="com.jiwonmall.jiwon.product.domain.GoodsDTO" parameterType="Integer">
+		SELECT *
+		FROM goods
+		WHERE goods_num = #{goods_num}
+	</select>
+	
+	<insert id="insertgoods" parameterType="com.jiwonmall.jiwon.product.domain.GoodsDTO">
+		INSERT INTO goods(goods_num, goods_name, goods_contents, goods_image, goods_company, goods_origin, goods_cost, goods_kind, member_id)
+		VALUES(goods_seq.nextval, #{goods_name}, #{goods_contents}, #{goods_image, jdbcType=VARCHAR}, #{goods_company}, #{goods_origin}, #{goods_cost}, #{goods_kind}, #{member_id})
+		<selectKey keyProperty="goods_num" resultType="int" order="AFTER">
+			SELECT goods_seq.currval
+			FROM dual
+		</selectKey>
+	</insert>
+	
+	<delete id="delgoods" parameterType="Integer">
+		DELETE FROM goods
+		WHERE goods_num = #{goods_num}
+	</delete>
+	
+	<update id="updategoods" parameterType="com.jiwonmall.jiwon.product.domain.GoodsDTO">
+		UPDATE goods
+		SET goods_name = #{goods_name},
+			goods_contents = #{goods_contents},
+			goods_cost = #{goods_cost}
+		WHERE goods_num = #{goods_num}
+	</update>
+	
+	<update id="excelupdategoods" parameterType="com.jiwonmall.jiwon.product.domain.GoodsDTO">
+		UPDATE goods
+		SET goods_name = #{goods_name},
+			goods_contents = #{goods_contents},
+			goods_date = SYSDATE,
+			goods_company = #{goods_company},
+			goods_origin = #{goods_origin},
+			goods_cost = #{goods_cost}
+		WHERE member_id = #{member_id}
+		AND goods_num = #{goods_num}
+	</update>
+	
+	<update id="mainimgupdate" parameterType="com.jiwonmall.jiwon.product.domain.GoodsDTO">
+		UPDATE goods
+		SET goods_image = #{goods_image}
+		WHERE member_id = #{member_id}
+		AND goods_num = #{goods_num}
+	</update>
+	
+	<insert id="excelinsert" parameterType="com.jiwonmall.jiwon.product.domain.GoodsDTO">
+		INSERT INTO goods(goods_num, goods_name, goods_contents, goods_company, goods_origin, goods_cost, goods_kind, member_id)
+		VALUES(goods_seq.nextval, #{goods_name}, #{goods_contents}, #{goods_company}, #{goods_origin}, #{goods_cost}, #{goods_kind}, #{member_id})
+		<selectKey keyProperty="goods_num" resultType="int" order="AFTER">
+			SELECT goods_seq.currval
+			FROM dual
+		</selectKey>
+	</insert>
+	
+	<select id="getnew_goods_num" resultType="Integer"> <!-- 반환타입 -->
+		SELECT NVL(MAX(goods_num), 0)
+		FROM goods
+	</select>
+	
+	<select id="rangeList" parameterType="Map" resultType="com.jiwonmall.jiwon.product.domain.GoodsDTO">
+		<![CDATA[
+			SELECT g.*, a.uuid, a.uploadpath, a.filename
+			FROM goods g,
+			     attach_goods a
+			WHERE g.goods_cost >= #{range1}
+			AND g.goods_cost <= #{range2}
+			AND g.goods_num = a.bno(+)
+		]]>
+			<if test="rangeq != null">
+			AND goods_name LIKE '%'||#{rangeq}||'%'
+			</if>
+	</select>
+
+</mapper>

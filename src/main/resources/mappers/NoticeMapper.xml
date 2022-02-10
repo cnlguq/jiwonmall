@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiwonmall.jiwon.board.mapper.NoticeMapper">
+	<select id="noticeview" parameterType="Map" resultType="com.jiwonmall.jiwon.board.domain.NoticeDTO">
+		<![CDATA[
+		SELECT *
+		FROM notice
+		WHERE ROWNUM <= 20
+		AND sort = 1
+		]]>
+		<if test="q != null">
+		AND notice_title LIKE '%'||#{q}||'%'
+		</if>
+		ORDER BY notice_num DESC
+	</select>
+	
+	<select id="faqview" resultType="com.jiwonmall.jiwon.board.domain.NoticeDTO">
+		<![CDATA[
+		SELECT *
+		FROM notice
+		WHERE ROWNUM <= 20
+		AND sort = 2
+		ORDER BY notice_num DESC
+		]]>
+	</select>
+	
+	<insert id="createNotice" parameterType="com.jiwonmall.jiwon.board.domain.NoticeDTO">
+		INSERT INTO notice(notice_num, member_id, notice_title, notice_contents, filename, sort)
+		VALUES(notice_seq.nextval, #{member_id}, #{notice_title}, #{notice_contents}, #{filename, jdbcType=VARCHAR}, #{sort})
+		<selectKey keyProperty="notice_num" resultType="int" order="AFTER">
+			SELECT notice_seq.currval
+			FROM dual
+		</selectKey>
+	</insert>
+	
+	<insert id="createFAQ" parameterType="com.jiwonmall.jiwon.board.domain.NoticeDTO">
+		INSERT INTO notice(notice_num, member_id, notice_title, notice_contents, filename, sort)
+		VALUES(notice_seq.nextval, #{member_id}, #{notice_title}, #{notice_contents}, #{filename, jdbcType=VARCHAR}, 2)
+		<selectKey keyProperty="notice_num" resultType="int" order="AFTER">
+			SELECT notice_seq.currval
+			FROM dual
+		</selectKey>
+		</insert>
+	
+	<select id="getNewnoticeNum" resultType="Integer"> <!-- 반환타입 -->
+		SELECT NVL(MAX(notice_num), 0)
+		FROM notice
+	</select>
+	
+	<select id="cntNotice" resultType="Integer">
+		SELECT count(*)
+		FROM notice
+		WHERE sort = 1
+	</select>
+	
+	<select id="cntFAQ" resultType="Integer">
+		SELECT count(*)
+		FROM notice
+		WHERE sort = 2
+	</select>
+	
+	<select id="scrollnotice" parameterType="Map" resultType="com.jiwonmall.jiwon.board.domain.NoticeDTO">
+			SELECT notice_num,
+	               member_id,
+	               notice_title,
+	               notice_contents,
+	               notice_date,
+	               sort
+			FROM (SELECT notice_num_order.*, ROWNUM rn
+			      FROM (SELECT *
+                        FROM notice
+                        WHERE sort = 1
+						<if test="q != null">
+						AND notice_title LIKE '%'||#{q}||'%'
+						</if>
+                        ORDER BY notice_num DESC) notice_num_order
+			     )
+			WHERE rn
+			BETWEEN 11 + #{cnt} AND 20 + #{cnt}
+	</select>
+	<select id="scrollfaq" resultType="com.jiwonmall.jiwon.board.domain.NoticeDTO">
+		<![CDATA[
+			SELECT notice_num,
+	               member_id,
+	               notice_title,
+	               notice_contents,
+	               notice_date,
+	               sort
+			FROM (SELECT notice_num_order.*, ROWNUM rn
+			      FROM (SELECT *
+                        FROM notice
+                        WHERE sort = 2
+                        ORDER BY notice_num DESC) notice_num_order
+			     )
+			WHERE rn
+			BETWEEN 11 + #{cnt} AND 20 + #{cnt}
+		]]>
+	</select>
+	
+	<delete id="delete">
+		DELETE FROM notice
+		WHERE notice_num = #{notice_num}
+		AND member_id = #{member_id}
+	</delete>
+	
+	<delete id="deletefaq">
+		DELETE FROM notice
+		WHERE notice_num = #{notice_num}
+		AND member_id = #{member_id}
+	</delete>
+	
+	<select id="read" resultType="com.jiwonmall.jiwon.board.domain.NoticeDTO">
+		SELECT *
+		FROM notice
+		WHERE notice_num = #{notice_num}
+	</select>
+	
+	<update id="update" parameterType="com.jiwonmall.jiwon.board.domain.NoticeDTO">
+		UPDATE notice
+		SET notice_title = #{notice_title},
+			notice_contents = #{notice_contents}
+		WHERE notice_num = #{notice_num}
+	</update>
+</mapper>

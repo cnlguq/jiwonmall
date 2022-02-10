@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiwonmall.jiwon.board.mapper.NoticeAttachMapper">
+	<insert id="insert">
+		INSERT INTO attach_notice(uuid, uploadpath, fileName, filetype, bno)
+		VALUES (#{uuid}, #{uploadpath}, #{fileName}, #{filetype}, #{bno})
+	</insert>
+	
+	<delete id="delete">
+		DELETE FROM attach_notice
+		WHERE uuid = #{uuid}
+	</delete>
+	
+	<delete id="deleteN">
+		DELETE FROM attach_notice
+		WHERE bno = #{bno}
+	</delete>
+	
+	<delete id="deleteF">
+		DELETE FROM attach_notice
+		WHERE bno = #{bno}
+	</delete>
+	
+	<select id="findByBno" resultType="com.jiwonmall.jiwon.board.domain.NoticeAttachDTO">
+		SELECT *
+		FROM attach_notice
+		WHERE bno = #{bno}
+	</select>
+	
+	<delete id="deleteAll">
+		DELETE FROM attach_notice
+		WHERE bno = #{bno}
+	</delete>
+	
+	<select id="getOldFiles" resultType="com.jiwonmall.jiwon.board.domain.NoticeAttachDTO">
+		SELECT *
+		FROM attach_notice
+		WHERE uploadpath = to_char(SYSDATE -1, 'yyyy\mm\dd')
+	</select>
+	
+	<select id="goodsAll" resultType="com.jiwonmall.jiwon.board.domain.NoticeAttachDTO">
+		SELECT *
+		FROM attach_notice
+	</select>
+	
+	<select id="noticeList" parameterType="Map" resultType="com.jiwonmall.jiwon.board.domain.NoticeAttachDTO">
+			SELECT *
+			FROM attach_notice
+			WHERE bno IN(SELECT last.notice_num
+						 FROM(SELECT notice_num_order.notice_num, rownum rn
+							  FROM (SELECT *
+	                                FROM notice
+	                                WHERE sort = 1
+									<if test="q != null">
+									AND notice_title LIKE '%'||#{q}||'%'
+									</if>
+	                                ORDER BY notice_num DESC) notice_num_order
+						 	 ) last
+						 WHERE rn
+						 BETWEEN 1 AND 20)
+	</select>
+	<select id="faqList" resultType="com.jiwonmall.jiwon.board.domain.NoticeAttachDTO">
+		<![CDATA[
+			SELECT *
+			FROM attach_notice
+			WHERE bno IN(SELECT last.notice_num
+						 FROM(SELECT notice_num_order.notice_num, rownum rn
+							  FROM (SELECT *
+	                                FROM notice
+	                                WHERE sort = 2
+	                                ORDER BY notice_num DESC) notice_num_order
+						 	 ) last
+						 WHERE rn
+						 BETWEEN 1 AND 20)
+		]]>
+	</select>
+	
+	<select id="noticeattachscroll" resultType="com.jiwonmall.jiwon.board.domain.NoticeAttachDTO">
+		SELECT *
+		FROM attach_notice
+		WHERE bno IN(SELECT last.notice_num
+					 FROM(SELECT notice_num_order.notice_num, rownum rn
+						  FROM (SELECT *
+                                FROM notice
+                                WHERE sort = 1
+                                ORDER BY notice_num DESC) notice_num_order
+					 	 ) last
+					 WHERE rn
+					 BETWEEN 11 + #{cnt} AND 20 + #{cnt})
+	</select>
+	
+	<select id="faqattachscroll" resultType="com.jiwonmall.jiwon.board.domain.NoticeAttachDTO">
+		SELECT *
+		FROM attach_notice
+		WHERE bno IN(SELECT last.notice_num
+					 FROM(SELECT notice_num_order.notice_num, rownum rn
+						  FROM (SELECT *
+                                FROM notice
+                                WHERE sort = 2
+                                ORDER BY notice_num DESC) notice_num_order
+					 	 ) last
+					 WHERE rn
+					 BETWEEN 11 + #{cnt} AND 20 + #{cnt})
+	</select>
+	
+</mapper>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiwonmall.jiwon.product.mapper.CartMapper">
+	<insert id="insertCart" parameterType="com.jiwonmall.jiwon.product.domain.CartDTO">
+		INSERT INTO cart(cart_num, member_id, goods_num)
+		VALUES(cart_seq.nextval, #{member_id}, #{goods_num})
+	</insert>
+	
+	<delete id="deleteCart">
+		DELETE FROM cart
+		WHERE member_id = #{member_id}
+	</delete>
+	
+	<select id="userCart" resultType="com.jiwonmall.jiwon.product.domain.CartDTO">
+		SELECT *
+		FROM cart
+		WHERE member_id = #{member_id}
+	</select>
+</mapper>

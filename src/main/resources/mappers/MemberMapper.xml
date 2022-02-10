@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MemberMapper">
+
+	<select id="signin" parameterType="string" resultType="com.jiwonmall.jiwon.member.domain.MemberDTO">
+		SELECT *
+		FROM member
+		WHERE member_id = #{member_id}
+	</select>
+	
+	<insert id="signup" parameterType="com.jiwonmall.jiwon.member.domain.MemberDTO">
+		INSERT INTO member(member_id, member_pwd, member_name, member_address, member_tel, member_zip_num, member_event)
+		VALUES(#{member_id}, #{member_pwd}, #{member_name}, #{member_address}, #{member_tel}, #{member_zip_num}, #{member_event})
+	</insert>
+	
+	<update id="updateMember" parameterType="com.jiwonmall.jiwon.member.domain.MemberDTO">
+		UPDATE member
+		SET member_pwd = #{member_pwd},
+			member_name = #{member_name},
+			member_address = #{member_address},
+			member_zip_num = #{member_zip_num}
+		WHERE member_id = #{member_id}
+	</update>
+	
+	<update id="dropMember" parameterType="String">
+		UPDATE member
+		SET member_useyn = 'N'
+		WHERE member_id = #{member_id}
+	</update>
+	
+	<select id="idchk" parameterType="String" resultType="String">
+		SELECT *
+		FROM member
+		WHERE member_id = #{member_id}
+	</select>
+	
+	<select id="useyn" parameterType="String">
+		UPDATE member
+		SET member_useyn = 'Y'
+		WHERE member_id = #{member_id}
+	</select>
+	
+</mapper>
